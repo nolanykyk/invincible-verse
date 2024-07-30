@@ -1,0 +1,24 @@
+using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /Fortnite.com/Characters }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+
+InvincibleDevice := class(creative_device):
+
+    @editable SignalRemoteManager : signal_remote_manager_device = signal_remote_manager_device{}
+    @editable Timer : timer_device = timer_device{}
+
+    OnBegin<override>()<suspends>:void=
+        SignalRemoteManager.PrimarySignalEvent.Subscribe(Invincible)
+        Timer.SuccessEvent.Subscribe(NotInvincible)
+    
+    Invincible(Agent : agent):void=
+        if(Player := Agent.GetFortCharacter[]):
+            Player.SetVulnerability(false)
+            Timer.Start()
+
+    NotInvincible(MaybeAgent: ?agent): void =
+        if (Agent := MaybeAgent?):
+            if (Player := Agent.GetFortCharacter[]):
+                Player.SetVulnerability(true)
+                Timer.Reset()
